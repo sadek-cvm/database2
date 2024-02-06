@@ -1,0 +1,19 @@
+CREATE DATABASE magix_db CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+SHOW DATABASES;
+
+CREATE USER 'magix_user'@'localhost' identified by "AAAaaa111";
+
+GRANT ALL ON magix_db.* TO 'magix_user'@'localhost';
+
+USE magix_db;
+CREATE TABLE users (
+	id INT NOT NULL AUTO_INCREMENT,
+	status ENUM("pending", "inactive", "active") DEFAULT "pending",
+	email VARCHAR(70) NOT NULL,
+	PRIMARY KEY pk_users(id),
+	INDEX idx_users_email(email)
+) ENGINE = innoDB CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+SELECT email FROM users LIMIT  0,10;
+
