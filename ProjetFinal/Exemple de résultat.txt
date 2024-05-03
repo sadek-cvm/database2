@@ -1,0 +1,54 @@
+﻿==============================================================================================================
+Config     : Config-PersInt.txt
+Date       : Fri Aug 11 11:56:29 EDT 2017
+Équipe     : FredT
+MD5        : bccaa7e81a0e243b7764ce54c66391bb
+IP         : 10.57.49.15
+-------------------------------------------------------------------------------------------------------------
+Nb fiches : 0
+Nb photos : 0
+Suppression totale : true
+Nb fiches (ap insertion) : 9
+Nb photos (ap insertion) : 9
+Nb fiches (ap suppression) : 8
+Nb photos (ap suppression) : 8
+===== Fiches (avec img) ======
+pAlex               cpa                 Libre     1980-01-01  2 connexions   
+pBob                cpb                 Mort      1930-05-15  3 connexions   
+pCane               cpC                 Libre     1980-05-15  2 connexions   
+pFrank              cpF2                Libre     1990-05-15  0 connexions   
+pFred               cpf                 Libre     1981-08-01  2 connexions   
+pJohn               cpj                 Disparu   1920-05-15  2 connexions   
+pKate               cpk                 Disparu   1940-05-15  2 connexions   
+pVictor             cpv                 Prison    1970-05-15  3 connexions   
+-----------------------------
+===== Fiches (limite) ======
+pAlex               cpa                 Libre     1980-01-01  2 connexions   
+pBob                cpb                 Mort      1930-05-15  3 connexions   
+pCane               cpC                 Libre     1980-05-15  2 connexions   
+-----------------------------
+===== Fiches (après modification 1981-08-14) ======
+pAlex               cpa                 Libre     1981-08-14  2 connexions   
+pBob                cpb                 Mort      1930-05-15  3 connexions   
+pCane               cpC                 Libre     1980-05-15  2 connexions   
+pFrank              cpF2                Libre     1990-05-15  0 connexions   
+pFred               cpf                 Libre     1981-08-01  2 connexions   
+pJohn               cpj                 Disparu   1920-05-15  2 connexions   
+pKate               cpk                 Disparu   1940-05-15  2 connexions   
+pVictor             cpv                 Prison    1970-05-15  3 connexions   
+-----------------------------
+===== Fiches (pF) ======
+pFrank              cpF2                Libre     1990-05-15  0 connexions   
+pFred               cpf                 Libre     1981-08-01  2 connexions   
+-----------------------------
+===== Fiches (pf) ======
+pFrank              cpF2                Libre     1990-05-15  0 connexions   
+pFred               cpf                 Libre     1981-08-01  2 connexions   
+-----------------------------
+Ratio libre : 50
+Âge moyen : 58
+Plus jeune : pFrank
+Cible : pCane
+Suppression totale : true
+Nb fiches : 0
+Nb photos : 0
