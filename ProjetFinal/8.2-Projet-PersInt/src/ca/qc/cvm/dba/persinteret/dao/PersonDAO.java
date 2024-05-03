@@ -79,7 +79,6 @@ public class PersonDAO {
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 				String formattedDate = localDate.format(formatter);
 
-
 				String id = p.get("id").toString();
 				String name = p.get("name").toString();
 				String codeName = p.get("codeName").toString();
@@ -262,8 +261,37 @@ public class PersonDAO {
 			Session dbNeo4j = Neo4jConnection.getConnection();
 			Database dbBerkeley = BerkeleyConnection.getConnection();
 
-			//TODO delele all from berkeleys?
-			//TODO delete relation methode?
+			Cursor myCursor = null;
+			List<String> keyList = new ArrayList<>();
+			try {
+				myCursor = dbBerkeley.openCursor(null, null);
+
+				DatabaseEntry foundKey = new DatabaseEntry();
+				DatabaseEntry foundData = new DatabaseEntry();
+
+				while (myCursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+					keyList.add(new String(foundKey.getData(), "UTF-8"));
+				}
+			}
+			catch (Exception e) {
+				System.err.println("Erreur de lecture de la base de données: " + e.toString());
+			}
+			finally {
+				try {
+					if (myCursor != null) {
+						myCursor.close();
+					}
+				}
+				catch(Exception e) {
+					System.err.println("Erreur de fermeture du curseur: " + e.toString());
+				}
+			}
+
+			for(String keyString: keyList){
+				DatabaseEntry key = new DatabaseEntry(keyString.getBytes("UTF-8"));
+				dbBerkeley.delete(null, key);
+			}
+
 
 			// delete all nodes in neo4j
 			dbNeo4j.run("MATCH (p:Person) DETACH DELETE p");
@@ -291,8 +319,8 @@ public class PersonDAO {
 				double freePersonCount = recordConnexions.get("freePersonCount").asDouble();
 				System.out.println(freePersonCount);
 				System.out.println(peopleCount);
-				double ration = freePersonCount / peopleCount;
-				num = (int) (ration * 100);
+				double ratio = freePersonCount / peopleCount;
+				num = (int) (ratio * 100);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -305,8 +333,34 @@ public class PersonDAO {
 	 * @return nombre
 	 */
 	public static long getPhotoCount() {
-		// iterate thru berkeley
-		return 0;
+		int counter = 0;
+		Database dbBerkeley = BerkeleyConnection.getConnection();
+		Cursor myCursor = null;
+		try {
+			myCursor = dbBerkeley.openCursor(null, null);
+
+			DatabaseEntry foundKey = new DatabaseEntry();
+			DatabaseEntry foundData = new DatabaseEntry();
+
+			while (myCursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+				counter++;
+			}
+		}
+		catch (Exception e) {
+			System.err.println("Erreur de lecture de la base de données: " + e.toString());
+		}
+		finally {
+			try {
+				if (myCursor != null) {
+					myCursor.close();
+				}
+			}
+			catch(Exception e) {
+				System.err.println("Erreur de fermeture du curseur: " + e.toString());
+			}
+		}
+
+		return counter;
 	}
 	
 	/**
@@ -358,8 +412,32 @@ public class PersonDAO {
 	 * @return nom de la personne
 	 */
 	public static String getNextTargetName() {
+		String nextTarget = "--";
+		try {
+			Session dbNeo4j = Neo4jConnection.getConnection();
+			String query = "MATCH (p:Person {status: 'Libre'}) " +
+					"OPTIONAL MATCH (p)<-[incomingRel]-(connection:Person) " +
+					"WHERE connection.status = 'Mort' OR connection.status = 'Disparu' " +
+					"WITH p, count(incomingRel) AS incomingCount " +
+					"OPTIONAL MATCH (p)-[outgoingRel]->(connection:Person) " +
+					"WHERE connection.status = 'Mort' OR connection.status = 'Disparu' " +
+					"WITH p, incomingCount, count(outgoingRel) AS outgoingCount " +
+					"WITH p, incomingCount + outgoingCount AS totalRelations " +
+					"ORDER BY totalRelations DESC " +
+					"LIMIT 1 " +
+					"RETURN p ";
+			StatementResult result = dbNeo4j.run(query);
 
-		return "--";
+			if (result.hasNext()) {
+				Record record = result.next();
+				Node person = record.get("p").asNode();
+				nextTarget = person.get("name").toString();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return nextTarget.substring(1, nextTarget.length() - 1);
 	}
 	
 	/**
@@ -373,14 +451,16 @@ public class PersonDAO {
 			Session dbNeo4j = Neo4jConnection.getConnection();
 			StatementResult result = dbNeo4j.run("MATCH (p:Person) RETURN AVG(p.dateOfBirth) AS averageDateOfBirth");
 
-
+//			System.out.println(result.next());
 			if (result.hasNext()) {
 				Record record = result.next();
-				long averageAgeMilis = record.get("averageDateOfBirth").asLong();
-				Instant instant = Instant.ofEpochMilli(averageAgeMilis);
-				LocalDate previousDate = instant.atZone(ZoneOffset.UTC).toLocalDate();
-				LocalDate currentDate = LocalDate.now();
-				resultat = (int) ChronoUnit.YEARS.between(previousDate, currentDate);
+				if(record.get("averageDateOfBirth").asString().substring(1, record.get("averageDateOfBirth").asString().length() - 1).equals("NULL")) {
+					long averageAgeMilis = record.get("averageDateOfBirth").asLong();
+					Instant instant = Instant.ofEpochMilli(averageAgeMilis);
+					LocalDate previousDate = instant.atZone(ZoneOffset.UTC).toLocalDate();
+					LocalDate currentDate = LocalDate.now();
+					resultat = (int) ChronoUnit.YEARS.between(previousDate, currentDate);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
